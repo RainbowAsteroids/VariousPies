@@ -2,7 +2,6 @@
 import RPi.GPIO as GPIO
 from time import sleep as wait
 from random import randrange as randomInt
-import click
 import random
 import os
 
@@ -119,7 +118,7 @@ try:
             GPIO.output(correctLED, 0)
             telegraph(inputtedKey)
             GPIO.output(readyLED, 1)
-            click.echo("Press {}".format(style("1", "red"))+" to play again or press {}".format(style("2", "green"))+" to quit!")
+            print("Press {}".format(style("1", "red"))+" to play again or press {}".format(style("2", "green"))+" to quit!")
             loop = True
             while loop:
                 if GPIO.input(button1):
