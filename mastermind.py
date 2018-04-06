@@ -6,6 +6,7 @@ import click
 import random
 import os
 
+
 button1 = 4
 button2 = 17
 button3 = 27
@@ -26,7 +27,16 @@ delay = 3
 inputtedKey = []
 loop = True
 count = 0
-colors = ["red","green","yellow","blue"]
+colors = {
+	"end":"\033[0m",
+	"green":"\033[92m",
+	"blue":"\033[94m",
+	"yellow":"\033[93m",
+	"red":"\033[91m",
+	"bold":"\033[1m"
+}
+
+color = ("red", "green", "yellow", "blue")
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(button1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -38,6 +48,10 @@ GPIO.setup(incorrectLED, GPIO.OUT)
 GPIO.setup(readyLED, GPIO.OUT)
 for pin in list(telegraphers.values()):
 	GPIO.setup(pin, GPIO.OUT)
+
+def style(str, color, bold=False):
+	return colors["bold" if bold else "end"]+colors[color]+str+colors["end"]
+
 
 def resetKey():
     global passkey
@@ -51,18 +65,18 @@ def startup(inverse=False):
         GPIO.output(LED, 1)
         wait(.15)
         GPIO.output(LED, 0)
-def rainbow(text, nl=True, bold=True):
+def rainbow(text, bold=True):
+    str = ""
     text = list(text)
-    x = text[-1]
-    text.pop(-1)
     for letter in text:
-        click.secho(letter, bold=bold, nl=False, fg=random.choice(colors))
-    click.secho(x, bold=bold, nl=nl, fg=random.choice(colors))
+        str = str+style(letter, random.choice(color), bold)
+    print(str)
 def telegraph(key):
 	for led in key:
 		GPIO.output(telegraphers[led], 1)
-		wait(.5)
+		wait(.25)
 		GPIO.output(telegraphers[led], 0)
+		wait(.125)
 
 try:
     startup()
@@ -72,21 +86,29 @@ try:
     while True:
         while loop:
             if GPIO.input(button1):
-                click.secho("1", bold=True, fg=colors[0])
+                print(style("1", "red"))
+                GPIO.output(telegraphers[1], 1)
                 inputtedKey.append(1)
                 wait(waitPeriod)
+                GPIO.output(telegraphers[1], 0)
             if GPIO.input(button2):
-                click.secho("2", bold=True, fg=colors[1])
+                print( style("2", "green"))
+                GPIO.output(telegraphers[2], 1)
                 inputtedKey.append(2)
                 wait(waitPeriod)
+                GPIO.output(telegraphers[2], 0)
             if GPIO.input(button3):
-                click.secho("3", bold=True, fg=colors[2])
+                print(style("3", "yellow"))
+                GPIO.output(telegraphers[3], 1)
                 inputtedKey.append(3)
                 wait(waitPeriod)
+                GPIO.output(telegraphers[3], 0)
             if GPIO.input(button4):
-                click.secho("4", bold=True, fg=colors[3])
+                print(style("4", "blue"))
+                GPIO.output(telegraphers[4], 1)
                 inputtedKey.append(4)
                 wait(waitPeriod)
+                GPIO.output(telegraphers[4], 0)
             if len(inputtedKey) == len(passkey):
                 loop = False
         if inputtedKey == passkey:
@@ -97,7 +119,7 @@ try:
             GPIO.output(correctLED, 0)
             telegraph(inputtedKey)
             GPIO.output(readyLED, 1)
-            click.echo("Press {}".format(click.style("1", bold=True, fg=colors[0]))+" to play again or press {}".format(click.style("2", bold=True, fg=colors[1]))+" to quit!")
+            click.echo("Press {}".format(style("1", "red"))+" to play again or press {}".format(style("2", "green"))+" to quit!")
             loop = True
             while loop:
                 if GPIO.input(button1):
@@ -114,14 +136,13 @@ try:
                     startup(True)
                 elif GPIO.input(button3):
                     telegraph(inputtedKey)
-                    os.system("clear")
         else:
             GPIO.output(readyLED, 0)
             GPIO.output(incorrectLED, 1)
-            print("Input 1 : {}".format("Correct!" if inputtedKey[0] == passkey[0] else "Incorrect!"))
-            print("Input 2 : {}".format("Correct!" if inputtedKey[1] == passkey[1] else "Incorrect!"))
-            print("Input 3 : {}".format("Correct!" if inputtedKey[2] == passkey[2] else "Incorrect!"))
-            print("Input 4 : {}".format("Correct!" if inputtedKey[3] == passkey[3] else "Incorrect!"))
+            print("Input 1 : {}".format(style("Correct!","green") if inputtedKey[0] == passkey[0] else style("Incorrect!", "red")))
+            print("Input 2 : {}".format(style("Correct!","green") if inputtedKey[1] == passkey[1] else style("Incorrect!", "red")))
+            print("Input 3 : {}".format(style("Correct!","green") if inputtedKey[2] == passkey[2] else style("Incorrect!", "red")))
+            print("Input 4 : {}".format(style("Correct!","green") if inputtedKey[3] == passkey[3] else style("Incorrect!", "red")))
             wait(delay)
             GPIO.output(incorrectLED, 0)
             GPIO.output(readyLED, 1)
