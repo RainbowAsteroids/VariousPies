@@ -29,13 +29,13 @@ def flow():
 	
 	
 def menu():
-	choices = ("Flow", "Random")
+	choices = ["Flow", "Random"]
 	message = "What lightshow do you want?\n"
 	exit = False
 	if type(choices) != list:
 		print("Please put in a list of choices!")
 	for i in choices:
-		print(str(choices.index(i)+1)+".", i)
+		print(str(choices.index(i)+1)+". "+i)
 	if exit:
 		print("0. Exit")
 	try:
@@ -47,13 +47,13 @@ def menu():
 	else:
 		print("Invalid Option!!!")
 
-def random():
+def main():
 	while True:
 		lightup(random(lights))
 
 commands = {
 	1:flow,
-	2:random
+	2:main
 }
 
 try:
